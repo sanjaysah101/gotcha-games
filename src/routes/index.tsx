@@ -7,6 +7,7 @@ import { CaptchaLayout } from "@/layouts/CaptchaLayout";
 import { GameLayout } from "@/layouts/GameLayout";
 
 import { Home } from "../components/Home";
+import { Demo } from "@/components/demo/Demo";
 
 export const router = createBrowserRouter([
   {
@@ -48,5 +49,9 @@ export const router = createBrowserRouter([
         element: <CaptchaWrapper />,
       },
     ],
+  },
+  {
+    path: "/demo",
+    element: <Demo />,
   },
 ]);
