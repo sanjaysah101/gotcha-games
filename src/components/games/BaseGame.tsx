@@ -9,7 +9,7 @@ import { useGame } from "@/hooks/useGame";
 
 export const BaseGame = ({ children }: { children: React.ReactNode }) => {
   const { active, score, timeRemaining, currentGame, resetGame, setActive } = useGame();
-  const config = useMemo(() => GAME_CONFIGS[currentGame], [currentGame]);
+  const config = useMemo(() => GAME_CONFIGS[currentGame ?? ""], [currentGame]);
 
   const handleError = useCallback(async () => {
     try {
@@ -29,7 +29,7 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
     } catch {
       await handleError();
     }
-  }, [currentGame, score, resetGame, handleError, config]);
+  }, [score, resetGame, handleError, config]);
 
   const handleGameExpired = useCallback(async () => {
     try {
