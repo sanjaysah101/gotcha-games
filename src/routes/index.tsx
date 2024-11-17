@@ -1,16 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import { GameSelector } from "@/components/GameSelector";
-import { Layout } from "@/components/Layout";
-import { ClickGame } from "@/components/games/ClickGame";
-import { MemoryGame } from "@/components/games/MemoryGame";
-import { PatternGame } from "@/components/games/PatternGame";
-import { PuzzleGame } from "@/components/games/PuzzleGame";
+import { CaptchaWrapper } from "@/components/captcha/CaptchaWrapper";
+import { ClickGame, MemoryGame, PatternGame, PuzzleGame } from "@/components/games";
+import { CaptchaLayout } from "@/layouts/CaptchaLayout";
+import { GameLayout } from "@/layouts/GameLayout";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: <GameLayout />,
     children: [
       {
         path: "/",
@@ -31,6 +30,16 @@ export const router = createBrowserRouter([
       {
         path: "puzzle",
         element: <PuzzleGame />,
+      },
+    ],
+  },
+  {
+    path: "/games",
+    element: <CaptchaLayout />,
+    children: [
+      {
+        path: "",
+        element: <CaptchaWrapper />,
       },
     ],
   },

@@ -15,24 +15,21 @@ interface Tile {
 }
 
 export const PuzzleGame = () => {
-  const { handleScore, active, score } = useGame();
+  const { handleScore, active } = useGame();
   const [tiles, setTiles] = useState<Tile[]>([]);
-  const [size, setSize] = useState(3); // Grid size increases with score
   const [moves, setMoves] = useState(0);
   const [isShuffling, setIsShuffling] = useState(false);
+  const size = 2; // Fixed 2x2 grid
 
   const initializePuzzle = useCallback(() => {
-    const gridSize = Math.min(3 + Math.floor(score / 2), 5); // Increase grid size with score
-    setSize(gridSize);
-
-    const totalTiles = gridSize * gridSize;
+    const totalTiles = size * size;
     let numbers: (number | null)[] = Array.from({ length: totalTiles - 1 }, (_, i) => i + 1);
     numbers.push(null);
 
-    // Ensure puzzle is solvable
+    // Ensure puzzle is solvable and not already solved
     do {
       numbers = numbers.sort(() => Math.random() - 0.5);
-    } while (!isSolvable(numbers as number[]));
+    } while (!isSolvable(numbers as number[]) || isSolved(numbers as number[]));
 
     setTiles(
       numbers.map((value, index) => ({
@@ -42,7 +39,7 @@ export const PuzzleGame = () => {
       }))
     );
     setMoves(0);
-  }, [score]);
+  }, []);
 
   const handleTileClick = (clickedTile: Tile) => {
     if (isShuffling) return;
@@ -69,9 +66,8 @@ export const PuzzleGame = () => {
 
     if (isSolved(values as number[])) {
       handleScore();
-      setTimeout(initializePuzzle, 1000);
     }
-  }, [tiles, active, moves, handleScore, initializePuzzle]);
+  }, [tiles, active, moves, handleScore]);
 
   // Initialize puzzle when game becomes active
   useEffect(() => {
@@ -85,12 +81,9 @@ export const PuzzleGame = () => {
   return (
     <BaseGame>
       <div className="space-y-4">
-        <div className="flex justify-between text-xs md:text-sm text-muted-foreground">
-          <span>Moves: {moves}</span>
-          <span>Grid: {size}x{size}</span>
-        </div>
+        <div className="text-center text-xs text-muted-foreground md:text-sm">Arrange the numbers in order</div>
         <div
-          className="grid aspect-square w-full max-w-sm mx-auto gap-1.5 md:gap-2"
+          className="mx-auto grid aspect-square w-full max-w-[200px] gap-2"
           style={{
             gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
           }}
@@ -107,7 +100,7 @@ export const PuzzleGame = () => {
                   exit={{ scale: 0.8, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   className={cn(
-                    "aspect-square rounded-lg text-base md:text-lg font-bold transition-colors",
+                    "aspect-square rounded-lg text-xl font-bold transition-colors",
                     tile?.value !== null ? "bg-primary hover:bg-primary/90" : "bg-muted",
                     isShuffling && "pointer-events-none"
                   )}

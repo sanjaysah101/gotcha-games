@@ -1,20 +1,13 @@
+import { useCallback } from "react";
+
 import { motion } from "framer-motion";
-import { Brain, Gamepad2, Puzzle, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { GAME_CONFIGS } from "@/config/games";
 import { useGame } from "@/hooks/useGame";
+import { GameType } from "@/types/game";
 
-import { GameType } from "../types/game";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-
-const gameIcons = {
-  click: Target,
-  pattern: Brain,
-  memory: Gamepad2,
-  puzzle: Puzzle,
-} as const;
+import { GameCard } from "./GameCard";
 
 const container = {
   hidden: { opacity: 0 },
@@ -26,71 +19,53 @@ const container = {
   },
 };
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
+interface GameSelectorProps {
+  random?: boolean;
+}
+
+const RandomGameCard = ({ onSelect }: { onSelect: (game: string) => void }) => {
+  const gameEntries = Object.entries(GAME_CONFIGS);
+  const [game, config] = gameEntries[Math.floor(Math.random() * gameEntries.length)];
+
+  return (
+    <motion.div variants={container} initial="hidden" animate="show" className="mx-auto max-w-sm">
+      <GameCard game={game} config={config} onSelect={onSelect} />;
+    </motion.div>
+  );
 };
 
-export const GameSelector = () => {
+const GameGrid = ({ onSelect }: { onSelect: (game: string) => void }) => (
+  <motion.div
+    variants={container}
+    initial="hidden"
+    animate="show"
+    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+  >
+    {Object.entries(GAME_CONFIGS).map(([game, config]) => (
+      <GameCard key={game} game={game} config={config} onSelect={onSelect} />
+    ))}
+  </motion.div>
+);
+
+export const GameSelector = ({ random = false }: GameSelectorProps) => {
   const navigate = useNavigate();
   const { setCurrentGame, resetGame } = useGame();
 
-  const handleGameSelect = (game: string) => {
-    resetGame();
-    setCurrentGame(game as GameType);
-    navigate(`/${game}`);
-  };
+  const handleGameSelect = useCallback(
+    (game: string) => {
+      resetGame();
+      setCurrentGame(game as GameType);
+      navigate(`/${game}`);
+    },
+    [navigate, resetGame, setCurrentGame]
+  );
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <h2 className="text-center text-lg font-semibold md:text-xl">Select a Challenge to Begin</h2>
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      >
-        {Object.entries(GAME_CONFIGS).map(([game, config]) => {
-          const Icon = gameIcons[game as keyof typeof gameIcons];
-          return (
-            <motion.div key={game} variants={item}>
-              <Card className="group h-full transition-all duration-300 hover:border-primary/20 hover:shadow-md">
-                <CardHeader className="p-4">
-                  <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                    <div className="rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
-                      <Icon className="size-4 text-primary md:size-5" />
-                    </div>
-                    <span className="capitalize">{game}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 p-4 pt-0">
-                  <div className="space-y-2 text-xs md:text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Target Score</span>
-                      <span className="font-medium">{config.maxScore} points</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Time Limit</span>
-                      <span className="font-medium">{config.timeLimit}s</span>
-                    </div>
-                  </div>
-                  <p className="border-l-2 border-primary/20 pl-3 text-xs text-muted-foreground md:text-sm">
-                    {config.description}
-                  </p>
-                  <Button
-                    onClick={() => handleGameSelect(game)}
-                    className="w-full transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
-                    variant="outline"
-                    size="sm"
-                  >
-                    Start Challenge
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+      <h2 className="text-center text-lg font-semibold md:text-xl">
+        {random ? "Complete the Challenge to Verify" : "Select a Challenge to Begin"}
+      </h2>
+      {random ? <RandomGameCard onSelect={handleGameSelect} /> : <GameGrid onSelect={handleGameSelect} />}
     </div>
   );
 };

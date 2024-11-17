@@ -2,10 +2,10 @@ import { GameConfig } from "@/types/game";
 
 export const GAME_CONFIGS: Record<string, GameConfig> = {
   click: {
-    title: "CAPTCHA Challenge",
-    maxScore: 5,
-    timeLimit: 30,
-    description: "Click on the moving targets to score points. Get 5 points within 30 seconds to pass.",
+    title: "Target Practice",
+    maxScore: 3,
+    timeLimit: 20,
+    description: "Click the colorful targets as they appear. Get 3 hits to verify you're human.",
   },
   pattern: {
     title: "Pattern Challenge",
@@ -15,14 +15,14 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   memory: {
     title: "Memory Challenge",
-    maxScore: 6,
-    timeLimit: 60,
-    description: "Match the pairs of cards. Find 6 pairs within 60 seconds to pass.",
+    maxScore: 3,
+    timeLimit: 30,
+    description: "Match 3 pairs of cards to verify you're human.",
   },
   puzzle: {
     title: "Puzzle Challenge",
     maxScore: 1,
-    timeLimit: 90,
-    description: "Solve the sliding puzzle. Complete the image within 90 seconds to pass.",
+    timeLimit: 30,
+    description: "Solve the 2x2 sliding puzzle to verify you're human.",
   },
 };

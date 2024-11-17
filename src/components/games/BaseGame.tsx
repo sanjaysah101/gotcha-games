@@ -1,37 +1,44 @@
 import { useCallback, useEffect } from "react";
 
 import { onChallengeError, onChallengeExpired, onChallengeResponse } from "@gotcha-widget/lib";
+import { Gamepad2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GAME_CONFIGS } from "@/config/games";
 import { useGame } from "@/hooks/useGame";
-
-import { GAME_CONFIGS } from "../../config/games";
 
 export const BaseGame = ({ children }: { children: React.ReactNode }) => {
   const { active, score, timeRemaining, currentGame, resetGame, setActive } = useGame();
-  const isInIframe = window !== window.parent;
+
+  const handleError = useCallback(async () => {
+    try {
+      await onChallengeError();
+      resetGame();
+    } catch {
+      resetGame();
+    }
+  }, [resetGame]);
 
   const handleGameComplete = useCallback(async () => {
     const config = GAME_CONFIGS[currentGame];
     const success = score >= config.maxScore;
 
-    // Get secret from URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const secret = urlParams.get("secret") || "api_test_key";
-
-    await onChallengeResponse(success);
-    resetGame();
-  }, [currentGame, resetGame, score]);
+    try {
+      await onChallengeResponse(success);
+      resetGame();
+    } catch {
+      await handleError();
+    }
+  }, [currentGame, score, resetGame, handleError]);
 
   const handleGameExpired = useCallback(async () => {
-    await onChallengeExpired();
-    resetGame();
-  }, [resetGame]);
-
-  const handleError = useCallback(async () => {
-    await onChallengeError();
-    resetGame();
-  }, [resetGame]);
+    try {
+      await onChallengeExpired();
+      resetGame();
+    } catch {
+      await handleError();
+    }
+  }, [handleError, resetGame]);
 
   useEffect(() => {
     if (!active || timeRemaining > 0) return;
@@ -48,9 +55,10 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
 
   if (!active) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center">
-        <Button onClick={() => setActive(true)} className="w-full max-w-xs" size={isInIframe ? "default" : "lg"}>
-          Start Challenge
+      <div className="flex min-h-[200px] items-center justify-center p-4">
+        <Button onClick={() => setActive(true)} size={"default"} className="w-full max-w-[200px] gap-2">
+          <Gamepad2 className="size-4" />
+          Start Game
         </Button>
       </div>
     );
@@ -59,13 +67,8 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-full flex-col space-y-4">
       <div className="flex-1">{children}</div>
-      <Button
-        onClick={() => void handleError()}
-        variant="destructive"
-        size={isInIframe ? "default" : "lg"}
-        className="mx-auto w-full max-w-xs"
-      >
-        Give Up
+      <Button onClick={() => void handleError()} variant="outline" size="sm" className="mx-auto w-full max-w-[200px]">
+        Cancel
       </Button>
     </div>
   );
