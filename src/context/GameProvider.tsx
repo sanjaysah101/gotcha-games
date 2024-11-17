@@ -9,7 +9,6 @@ const DEFAULT_TIME_LIMIT = 30; // Fallback time limit
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentGame, setCurrentGame] = useState<GameType | null>(null);
-  const [isScoreHandled, setScoreHandled] = useState(false);
   // Initialize with safe default values
   const [state, setState] = useState<GameState>(() => ({
     active: false,
@@ -38,14 +37,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   }, [currentGame, getGameTimeLimit]);
 
   const handleScore = useCallback(() => {
-    if (!isScoreHandled) {
-      setState((prev) => ({
-        ...prev,
-        score: prev.score + 1,
-      }));
-      setScoreHandled(true);
-    }
-  }, [isScoreHandled]);
+    setState((prev) => ({
+      ...prev,
+      score: prev.score + 1,
+    }));
+  }, []);
 
   const setActive = useCallback(
     (value: boolean) => {
@@ -55,7 +51,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         score: 0,
         timeRemaining: getGameTimeLimit(currentGame),
       }));
-      setScoreHandled(false);
     },
     [currentGame, getGameTimeLimit]
   );
@@ -91,8 +86,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         setActive,
         resetGame,
         handleScore,
-        isScoreHandled,
-        setScoreHandled,
       }}
     >
       {children}

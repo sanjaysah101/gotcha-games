@@ -18,14 +18,15 @@ const colors = [
 ];
 
 export const PatternGame = () => {
-  const { handleScore, active, score } = useGame();
+  const { handleScore, active } = useGame();
   const [pattern, setPattern] = useState<PatternStep[]>([]);
   const [userPattern, setUserPattern] = useState<PatternStep[]>([]);
   const [isShowingPattern, setIsShowingPattern] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [hasScored, setHasScored] = useState(false);
 
   const generatePattern = useCallback(() => {
-    const length = Math.min(3 + score, 7); // Pattern length increases with score
+    const length = 3;
     const newPattern = Array.from({ length }, (_, i) => ({
       id: i,
       color: colors[Math.floor(Math.random() * colors.length)].class,
@@ -33,28 +34,24 @@ export const PatternGame = () => {
     setPattern(newPattern);
     setUserPattern([]);
     setIsShowingPattern(true);
-
-    // Show pattern with increasing speed based on score
-    const showTime = Math.max(3000 - score * 300, 1500);
-    setTimeout(() => setIsShowingPattern(false), showTime);
-  }, [score]);
+    setTimeout(() => setIsShowingPattern(false), 2000);
+  }, []);
 
   const handleColorClick = (color: string) => {
-    if (isShowingPattern || isChecking) return;
+    if (isShowingPattern || isChecking || hasScored) return;
 
     setUserPattern((prev) => {
       const newPattern = [...prev, { id: prev.length, color }];
 
-      // Check pattern when user has input the same length as the target
       if (newPattern.length === pattern.length) {
         setIsChecking(true);
         const isCorrect = newPattern.every((step, i) => step.color === pattern[i].color);
 
         setTimeout(() => {
-          if (isCorrect) {
+          if (isCorrect && !hasScored) {
+            setHasScored(true);
             handleScore();
-            generatePattern();
-          } else {
+          } else if (!isCorrect) {
             setUserPattern([]);
           }
           setIsChecking(false);
@@ -65,9 +62,9 @@ export const PatternGame = () => {
     });
   };
 
-  // Start new pattern when game becomes active
   useEffect(() => {
     if (active) {
+      setHasScored(false);
       generatePattern();
     }
   }, [active, generatePattern]);
@@ -75,12 +72,19 @@ export const PatternGame = () => {
   return (
     <BaseGame>
       <div className="flex flex-col items-center space-y-6 md:space-y-8">
+        <div className="space-y-2 text-center">
+          <div className="text-sm text-muted-foreground md:text-base">Remember and repeat the pattern to verify</div>
+          <div className="text-xs text-muted-foreground/80">
+            {isShowingPattern ? "Memorize the pattern..." : "Now repeat the pattern"}
+          </div>
+        </div>
+
         <div className="flex justify-center space-x-3">
           {pattern.map((step, index) => (
             <div
               key={step.id}
               className={cn(
-                "h-4 w-4 md:h-6 md:w-6 rounded-full transition-all",
+                "h-6 w-6 rounded-full transition-all md:h-8 md:w-8",
                 isShowingPattern ? step.color : "bg-muted",
                 userPattern[index]?.color
               )}

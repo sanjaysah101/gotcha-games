@@ -15,7 +15,7 @@ interface Card {
 const symbols = ["🎮", "🎲", "🎯"];
 
 export const MemoryGame = () => {
-  const { handleScore, active, setScoreHandled } = useGame();
+  const { handleScore, active } = useGame();
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [isChecking, setIsChecking] = useState(false);
@@ -33,39 +33,41 @@ export const MemoryGame = () => {
     setFlippedCards([]);
   }, []);
 
-  const handleCardClick = (cardId: number) => {
-    if (isChecking || flippedCards.length >= 2) return;
+  const handleCardClick = useCallback(
+    (cardId: number) => {
+      if (isChecking || flippedCards.length >= 2) return;
 
-    setCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, isFlipped: true } : card)));
+      setCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, isFlipped: true } : card)));
 
-    setFlippedCards((prev) => {
-      const newFlipped = [...prev, cardId];
+      setFlippedCards((prev) => {
+        const newFlipped = [...prev, cardId];
 
-      if (newFlipped.length === 2) {
-        setIsChecking(true);
+        if (newFlipped.length === 2) {
+          setIsChecking(true);
 
-        const [first, second] = newFlipped.map((id) => cards.find((card) => card.id === id)!);
+          const [first, second] = newFlipped.map((id) => cards.find((card) => card.id === id)!);
 
-        setTimeout(() => {
-          if (first.value === second.value) {
-            setCards((prev) =>
-              prev.map((card) => (newFlipped.includes(card.id) ? { ...card, isMatched: true } : card))
-            );
-            handleScore();
-          } else {
-            setCards((prev) =>
-              prev.map((card) => (newFlipped.includes(card.id) ? { ...card, isFlipped: false } : card))
-            );
-            setScoreHandled(false);
-          }
-          setFlippedCards([]);
-          setIsChecking(false);
-        }, 600);
-      }
+          setTimeout(() => {
+            if (first.value === second.value && !first.isMatched && !second.isMatched) {
+              setCards((prev) =>
+                prev.map((card) => (newFlipped.includes(card.id) ? { ...card, isMatched: true } : card))
+              );
+              handleScore();
+            } else {
+              setCards((prev) =>
+                prev.map((card) => (newFlipped.includes(card.id) ? { ...card, isFlipped: false } : card))
+              );
+            }
+            setFlippedCards([]);
+            setIsChecking(false);
+          }, 600);
+        }
 
-      return newFlipped;
-    });
-  };
+        return newFlipped;
+      });
+    },
+    [cards, flippedCards, isChecking, handleScore]
+  );
 
   useEffect(() => {
     if (active) {

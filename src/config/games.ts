@@ -9,9 +9,9 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   pattern: {
     title: "Pattern Challenge",
-    maxScore: 3,
-    timeLimit: 45,
-    description: "Memorize and repeat the pattern sequence. Complete 3 patterns to pass.",
+    maxScore: 1,
+    timeLimit: 30,
+    description: "Memorize and repeat the pattern sequence to verify you're human.",
   },
   memory: {
     title: "Memory Challenge",

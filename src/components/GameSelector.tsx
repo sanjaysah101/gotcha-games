@@ -2,8 +2,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 import { GAME_CONFIGS } from "@/config/games";
-import { useGame } from "@/hooks/useGame";
-import { GameType } from "@/types/game";
 
 import { GameCard } from "./GameCard";
 
@@ -47,12 +45,8 @@ const GameGrid = ({ onSelect }: { onSelect: (game: string) => void }) => (
 
 export const GameSelector = ({ random = false }: GameSelectorProps) => {
   const navigate = useNavigate();
-  const { setCurrentGame } = useGame();
 
-  const handleGameSelect = (game: string) => {
-    setCurrentGame(game as GameType);
-    navigate(`/game/${game}`);
-  };
+  const handleGameSelect = (game: string) => navigate(`/game/${game}`);
 
   return (
     <div className="space-y-4 md:space-y-6">

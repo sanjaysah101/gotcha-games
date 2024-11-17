@@ -19,7 +19,7 @@ export const PuzzleGame = () => {
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [moves, setMoves] = useState(0);
   const [isShuffling, setIsShuffling] = useState(false);
-  const size = 2; // Fixed 2x2 grid
+  const size = 3; // Changed from 2 to 3 for a 3x3 grid
 
   const initializePuzzle = useCallback(() => {
     const totalTiles = size * size;
@@ -80,29 +80,38 @@ export const PuzzleGame = () => {
 
   return (
     <BaseGame>
-      <div className="space-y-4">
-        <div className="text-center text-xs text-muted-foreground md:text-sm">Arrange the numbers in order</div>
+      <div className="space-y-6">
+        <div className="space-y-2 text-center">
+          <div className="text-sm text-muted-foreground md:text-base">Arrange the numbers in order</div>
+          <div className="text-xs text-muted-foreground/80">Moves: {moves}</div>
+        </div>
+
         <div
-          className="mx-auto grid aspect-square w-full max-w-[200px] gap-2"
+          className="mx-auto grid aspect-square w-full max-w-[300px] gap-2 rounded-xl bg-muted/30 p-4"
           style={{
             gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
           }}
         >
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {Array.from({ length: size * size }).map((_, index) => {
               const tile = tiles.find((t) => t.position === index);
               return (
                 <motion.button
                   key={tile?.id ?? index}
-                  layout
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  layout="position"
+                  initial={false}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{
+                    type: "tween",
+                    duration: 0.15,
+                    ease: "easeOut",
+                  }}
                   className={cn(
-                    "aspect-square rounded-lg text-xl font-bold transition-colors",
-                    tile?.value !== null ? "bg-primary hover:bg-primary/90" : "bg-muted",
-                    isShuffling && "pointer-events-none"
+                    "aspect-square rounded-xl text-2xl font-bold",
+                    "shadow-md",
+                    tile?.value !== null ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-muted/50",
+                    isShuffling && "pointer-events-none",
+                    "transition-transform duration-150 hover:-translate-y-0.5"
                   )}
                   onClick={() => tile?.value !== null && handleTileClick(tile!)}
                 >
@@ -111,6 +120,10 @@ export const PuzzleGame = () => {
               );
             })}
           </AnimatePresence>
+        </div>
+
+        <div className="text-center text-xs text-muted-foreground/70">
+          Click tiles adjacent to the empty space to move them
         </div>
       </div>
     </BaseGame>
