@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import { onChallengeError, onChallengeExpired, onChallengeResponse } from "@gotcha-widget/lib";
 import { Gamepad2 } from "lucide-react";
@@ -9,6 +9,7 @@ import { useGame } from "@/hooks/useGame";
 
 export const BaseGame = ({ children }: { children: React.ReactNode }) => {
   const { active, score, timeRemaining, currentGame, resetGame, setActive } = useGame();
+  const config = useMemo(() => GAME_CONFIGS[currentGame], [currentGame]);
 
   const handleError = useCallback(async () => {
     try {
@@ -20,7 +21,6 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
   }, [resetGame]);
 
   const handleGameComplete = useCallback(async () => {
-    const config = GAME_CONFIGS[currentGame];
     const success = score >= config.maxScore;
 
     try {
@@ -29,7 +29,7 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
     } catch {
       await handleError();
     }
-  }, [currentGame, score, resetGame, handleError]);
+  }, [currentGame, score, resetGame, handleError, config]);
 
   const handleGameExpired = useCallback(async () => {
     try {
@@ -47,11 +47,10 @@ export const BaseGame = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!active) return;
-    const config = GAME_CONFIGS[currentGame];
     if (score >= config.maxScore) {
       void handleGameComplete();
     }
-  }, [active, score, currentGame, handleGameComplete]);
+  }, [active, score, handleGameComplete, config]);
 
   if (!active) {
     return (

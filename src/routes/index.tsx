@@ -6,13 +6,19 @@ import { ClickGame, MemoryGame, PatternGame, PuzzleGame } from "@/components/gam
 import { CaptchaLayout } from "@/layouts/CaptchaLayout";
 import { GameLayout } from "@/layouts/GameLayout";
 
+import { Home } from "../components/Home";
+
 export const router = createBrowserRouter([
   {
     path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/game",
     element: <GameLayout />,
     children: [
       {
-        path: "/",
+        path: "",
         element: <GameSelector />,
       },
       {
@@ -34,7 +40,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/games",
+    path: "/random",
     element: <CaptchaLayout />,
     children: [
       {

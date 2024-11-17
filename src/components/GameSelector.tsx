@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -29,7 +27,7 @@ const RandomGameCard = ({ onSelect }: { onSelect: (game: string) => void }) => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="mx-auto max-w-sm">
-      <GameCard game={game} config={config} onSelect={onSelect} />;
+      <GameCard game={game} config={config} onSelect={onSelect} />
     </motion.div>
   );
 };
@@ -49,16 +47,12 @@ const GameGrid = ({ onSelect }: { onSelect: (game: string) => void }) => (
 
 export const GameSelector = ({ random = false }: GameSelectorProps) => {
   const navigate = useNavigate();
-  const { setCurrentGame, resetGame } = useGame();
+  const { setCurrentGame } = useGame();
 
-  const handleGameSelect = useCallback(
-    (game: string) => {
-      resetGame();
-      setCurrentGame(game as GameType);
-      navigate(`/${game}`);
-    },
-    [navigate, resetGame, setCurrentGame]
-  );
+  const handleGameSelect = (game: string) => {
+    setCurrentGame(game as GameType);
+    navigate(`/game/${game}`);
+  };
 
   return (
     <div className="space-y-4 md:space-y-6">
